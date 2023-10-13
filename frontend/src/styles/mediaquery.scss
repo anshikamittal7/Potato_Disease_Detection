@@ -1,0 +1,22 @@
+@import "./colors.scss";
+
+@media screen and (max-width: 1100px) {
+    nav {
+      > div {
+        width: 75%;
+        font-size: small;
+      }
+    }
+}
+
+@media screen and (max-width: 800px) {
+    nav {
+      > div {
+        display: none;
+      }
+    }
+  
+    .navBtn {
+      display: inline;
+    }
+}

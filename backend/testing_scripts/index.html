@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>File Upload</title>
+  </head>
+  <body>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input
+        type="file"
+        name="image"
+        id="fileInput"
+        accept=".jpg, .jpeg, .png"
+      />
+      <button type="button" onclick="uploadFile()">Upload</button>
+    </form>
+
+    <pre id="response"></pre>
+
+    <script>
+      function uploadFile() {
+        const fileInput = document.getElementById("fileInput");
+        const responseDiv = document.getElementById("response");
+
+        const file = fileInput.files[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append("image", file);
+
+          fetch("http://127.0.0.1:8000/getDiseaseStatus/", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              responseDiv.textContent = JSON.stringify(data, null, 2);
+            })
+            .catch((error) => {
+              responseDiv.textContent = "Error: " + error;
+            });
+        } else {
+          responseDiv.textContent = "Please select a file to upload.";
+        }
+      }
+    </script>
+  </body>
+</html>

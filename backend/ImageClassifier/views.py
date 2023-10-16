@@ -7,33 +7,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+from PotatoDiseaseBackend import settings
 
-
-# Define the downloadImage function
-# views.py
-
-
-def process_and_save_image(image):
-    # Open the uploaded image using Pillow
-    img = Image.open(image)
-
-    # Perform image processing using Pillow
-    # For example, you can resize the image to a specific size
-    img = img.resize((256, 256), Image.ANTIALIAS)
-
-    # Save the processed image
-    processed_image_path = 'processed_image.jpg'
-    img.save(processed_image_path)
-
-    return processed_image_path
-
-def downloadImage(request):
-    if request.method == 'POST':
-        image = request.FILES['image']
-        processed_image_path = process_and_save_image(image)
-
-        return JsonResponse({'message': 'Image uploaded successfully.'})
-    return JsonResponse({'error': 'No image provided in the request.'})
 
 
 def runImageOnModel():
@@ -62,13 +37,31 @@ def hello(request):
 
 @csrf_exempt
 def getDiseaseStatus(request):
-    if request.method== "POST":
-        downloadImage(request)
-        runImageOnModel()
-        res= {
-            "hey": "bro",
-            "status": 200
-        }
+    if request.method == "POST":
+        uploaded_image = request.FILES.get('image')
+
+        if uploaded_image:
+            save_dir = settings.UPLOADS_DIR
+            # if not os.path.exists(save_dir):
+            #     os.makedirs(save_dir)
+
+            image_filename = os.path.join(save_dir, uploaded_image.name)
+
+            with open(image_filename, 'wb+') as destination:
+                for chunk in uploaded_image.chunks():
+                    destination.write(chunk)
+                    
+
+
+            res = {
+                "message": "Image uploaded and saved successfully",
+                "status": 200
+            }
+        else:
+            res = {
+                "message": "No image uploaded",
+                "status": 400
+            }
 
         return JsonResponse(res)
 

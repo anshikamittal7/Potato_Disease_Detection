@@ -32,6 +32,8 @@
           })
             .then((response) => response.json())
             .then((data) => {
+              console.log(data);
+              localStorage.setItem("mess", data);
               responseDiv.textContent = JSON.stringify(data, null, 2);
             })
             .catch((error) => {

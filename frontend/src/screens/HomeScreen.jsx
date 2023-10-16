@@ -16,6 +16,7 @@ const HomeScreen = () => {
         <div {...getRootProps({ className: "dropzone" })}>
           <input {...getInputProps()} />
           <button>Upload Leaf Image</button>
+          <button>Upload Potato Image</button>
         </div>
 
         <aside>

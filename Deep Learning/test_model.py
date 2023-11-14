@@ -6,7 +6,7 @@ import numpy as np
 import os
 
 # Load the pre-trained model
-model = load_model('model_v1.h5')
+model = load_model('../potatoes_codebasics.h5')
 
 # Load the image file
 c=0
@@ -14,9 +14,9 @@ tot=0
 script_dir = os.path.dirname(__file__)  # Get the directory of the script
 for i in range(901, 980) :
 
-    image_path = os.path.join(script_dir, 'Data', 'testing', 'Potato___healthy', f'image ({i}).JPG')
+    image_path = os.path.join(script_dir, 'Data', 'training', 'Potato___Early_blight', f'image ({i}).JPG')
 
-    img = image.load_img(image_path, target_size=(128, 128))
+    img = image.load_img(image_path, target_size=(256, 256))
 
     # Convert the image to a numpy array
     x = image.img_to_array(img)

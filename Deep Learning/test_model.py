@@ -6,7 +6,7 @@ import numpy as np
 import os
 
 # Load the pre-trained model
-model = load_model('../potatoes_codebasics.h5')
+model = load_model('resnet50_model.h5')
 
 # Load the image file
 c=0
@@ -14,7 +14,7 @@ tot=0
 script_dir = os.path.dirname(__file__)  # Get the directory of the script
 for i in range(901, 980) :
 
-    image_path = os.path.join(script_dir, 'Data', 'training', 'Potato___Early_blight', f'image ({i}).JPG')
+    image_path = os.path.join(script_dir, 'Data', 'training', 'Potato___Late_blight', f'image ({i}).JPG')
 
     img = image.load_img(image_path, target_size=(256, 256))
 

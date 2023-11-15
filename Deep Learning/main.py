@@ -42,13 +42,13 @@ n_classes = 3
 for layer in base_model.layers:
     layer.trainable = False
 
-# Build your model on top of the InceptionV3 base model
-model = models.Sequential([
-    base_model,
-    layers.GlobalAveragePooling2D(),
-    layers.Dense(64, activation='relu'),
-    layers.Dense(n_classes, activation='softmax')
-])
+# Build your model using functional API
+x = base_model.output
+x = layers.GlobalAveragePooling2D()(x)
+x = layers.Dense(64, activation='relu')(x)
+predictions = layers.Dense(n_classes, activation='softmax')(x)
+
+model = models.Model(inputs=base_model.input, outputs=predictions)
 
 model.summary()
 

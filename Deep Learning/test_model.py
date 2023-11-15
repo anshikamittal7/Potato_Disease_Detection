@@ -1,45 +1,43 @@
-
-# Load the image file
-from keras.models import load_model
-from keras.preprocessing import image
-import numpy as np
 import os
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
-# Load the pre-trained model
-model = load_model('./Valid Models/vgg16_model.h5')
+def load_and_display_images(root_dir, num_images=3):
+    # Get a list of all subdirectories in the root directory
+    subdirectories = [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d))]
+    print(subdirectories)
 
-# Load the image file
-c=0
-tot=0
-script_dir = os.path.dirname(__file__)  # Get the directory of the script
-for i in range(901, 980) :
+    # Create a single figure with multiple subplots
+    fig, axs = plt.subplots(len(subdirectories), num_images, figsize=(12, 12))
+    
+    # Loop through each subdirectory
+    for i, subdir in enumerate(subdirectories):
+        subdir_path = os.path.join(root_dir, subdir)
 
-    # image_path = os.path.join(script_dir, 'Data', 'training', 'Potato___Early_blight', f'image ({i}).JPG')
-    # image_path = os.path.join(script_dir, 'Data', 'training', 'Potato___Late_blight', f'image ({i}).JPG')
-    image_path = os.path.join(script_dir, 'Data', 'training', 'Potato___healthy', f'image ({i}).JPG')
+        # Get a list of image files in the subdirectory
+        image_files = [f for f in os.listdir(subdir_path) if f.endswith(('.jpg', '.JPG'))]
 
-    img = image.load_img(image_path, target_size=(256, 256))
+        # Take at most 'num_images' images
+        images_to_display = image_files[:num_images]
 
-    # Convert the image to a numpy array
-    x = image.img_to_array(img)
+        # Display the images in the corresponding subplot
+        for j, image_file in enumerate(images_to_display):
+            image_path = os.path.join(subdir_path, image_file)
+            img = mpimg.imread(image_path)
 
-    # Add a fourth dimension (since Keras expects a list of images)
-    x = np.expand_dims(x, axis=0)
+            # Display the image with the directory name as the title
+            axs[i, j].imshow(img)
+            axs[i, j].set_title(subdir)
+            axs[i, j].axis('on')  # Turn off axis labels
 
-    # Scale the input image to the range used in the trained network
-    x = x / 255.0
+            # Add line numbers
+            # for line_num, line_text in enumerate(range(1, num_images + 1), start=1):
+            #     axs[i, j].text(0, (line_num - 1) / num_images, str(line_text), transform=axs[i, j].transAxes,
+            #                    color='white', fontsize=8, va='center', ha='left', fontweight='bold')
 
+    # Adjust layout to prevent clipping of titles
+    plt.tight_layout()
+    plt.show()
 
-    preds = model.predict(x)
-    print(str(i)+ " : "+ str(preds))
-    # Map the predicted values to the corresponding classes
-    class_dict = {0: 'early blight', 1: 'late blight', 2: 'healthy'}
-    pred_class = class_dict[np.argmax(preds)]
-
-    # Output the prediction
-    if(np.argmax(preds) == 2):
-         c= c+1
-    tot= tot+1
-    print('Predicted:', pred_class)
-
-print(c,"/", tot )
+# Example usage: Replace 'your_root_directory' with the actual path to your root directory
+load_and_display_images('Data/training', num_images=3)

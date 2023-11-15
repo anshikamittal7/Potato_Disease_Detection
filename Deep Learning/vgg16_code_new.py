@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
-from tensorflow.keras.applications import InceptionV3
+from tensorflow.keras.applications import VGG16
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 
@@ -33,8 +33,8 @@ validation_generator = train_datagen.flow_from_directory(
     subset='validation'  # Specify validation subset
 )
 
-# Create InceptionV3 base model
-base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(IMAGE_SIZE, IMAGE_SIZE, CHANNELS))
+# Create VGG16 base model
+base_model = VGG16(weights='imagenet', include_top=False, input_shape=(IMAGE_SIZE, IMAGE_SIZE, CHANNELS))
 
 n_classes = 3
 
@@ -42,10 +42,10 @@ n_classes = 3
 for layer in base_model.layers:
     layer.trainable = False
 
-# Build your model on top of the InceptionV3 base model
+# Build your model on top of the VGG16 base model
 model = models.Sequential([
     base_model,
-    layers.GlobalAveragePooling2D(),
+    layers.Flatten(),
     layers.Dense(64, activation='relu'),
     layers.Dense(n_classes, activation='softmax')
 ])
@@ -70,7 +70,7 @@ history = model.fit(
 )
 
 # Save the model
-model.save("inception_model.h5")
+model.save("vgg16_model.h5")
 
 # Plot training and validation history
 plt.figure(figsize=(12, 4))

@@ -33,7 +33,7 @@ validation_generator = test_datagen.flow_from_directory(
     class_mode='binary')
 
 # Train the model
-history = model.fit(
+history = .fit(
     train_generator,
     steps_per_epoch=100,
     epochs=10,

@@ -1,3 +1,4 @@
 Data/
 Deep Learning.zip
 *.h5
+!/Deep Learning/Valid Models/*.h5

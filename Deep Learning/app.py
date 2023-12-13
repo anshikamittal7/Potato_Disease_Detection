@@ -1,57 +1,66 @@
-
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications.inception_v3 import InceptionV3
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.applications.inception_v3 import preprocess_input, decode_predictions
+import matplotlib.pyplot as plt
+import numpy as np
 
-# Define the CNN architecture
-base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
-x = base_model.output
-x = tf.keras.layers.GlobalAveragePooling2D()(x)
+# Load your models
+model_names = ['./Valid Models/resnet50_model.h5', './Valid Models/inception_model.h5', './Valid Models/vgg16_model.h5' , './Valid Models/sequential_15layer.h5']
+# , './Valid Models/sequential_15layer.h5'
+models = []
+for model_name in model_names:
+    model = tf.keras.models.load_model(model_name)
+    models.append(model)
 
-x = tf.keras.layers.Dense(512, activation='relu')(x)
-x = tf.keras.layers.Dropout(0.5)(x)
-predictions = tf.keras.layers.Dense(1, activation='sigmoid')(x)
+# Load and preprocess the image
 
-model = tf.keras.Sequential([
-    base_model,
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(1024, activation='relu'),
-    tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(512, activation='relu'),
-    tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(256, activation='relu'),
-    tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(3, activation='softmax')
-])
+c=0
+tot=0
+for i in range(910, 920):
+    
+    img_path = f'./Data/testing/Potato___Healthy/image ({i}).JPG'
+    img = image.load_img(img_path, target_size=(256, 256))  # Adjust target_size based on your model's input size
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)
 
-# Compile the model
-model.compile(loss='binary_crossentropy',
-              optimizer=tf.keras.optimizers.Adam(lr=1e-4),
-              metrics=['accuracy'])
+    # Plot the original image
+    # plt.figure(figsize=(8, 8))
+    # plt.subplot(1, len(models)+1, 1)
+    # plt.imshow(img)
+    # plt.title('Original Image')
 
-# Preprocess the images
-train_datagen = ImageDataGenerator(rescale=1./255)
-test_datagen = ImageDataGenerator(rescale=1./255)
+    # Make predictions for each model
+    for i, model in enumerate(models, start=1):
+        predictions = model.predict(img_array)
 
-train_generator = train_datagen.flow_from_directory(
-    './Data/training',
-    target_size=(150, 150),
-    batch_size=32,
-    class_mode='binary')
+        # Decode predictions (for example, if using a model pre-trained on ImageNet)
+        # Modify this part based on your model's output format
+        classes = range(1, len(predictions[0]) + 1)  # Assuming indices are class labels
+        probs = predictions[0]
+        # Extract class labels and probabilities
+        # labels, probs = zip(*decoded_predictions[0])  # Assuming top-1 prediction
 
-validation_generator = test_datagen.flow_from_directory(
-    './Data/testing',
-    target_size=(150, 150),
-    batch_size=32,
-    class_mode='binary')
+        # Plot the results
+        # plt.subplot(1, len(models)+1, i+1)
+        # print("classes ", classes , "probs ", probs)
+        # plt.barh(classes, probs, color='skyblue')
+        # plt.xlim([0, 1])
+        # plt.title(f'Model {i} Predictions')
+        class_dict = {0: 'early blight', 1: 'late blight', 2: 'healthy'}
+        pred_class = class_dict[np.argmax(probs)]
 
-# Train the model
-history = model.fit(
-    train_generator,
-    steps_per_epoch=100,
-    epochs=15,
-    validation_data=validation_generator,
-    validation_steps=50)
+        # Output the prediction
+        print(f'Model {i} Predicted:', pred_class)
+        print(f'Class Probabilities: {probs}')
 
-# Save the model
-model.save('potato_disease_model_inception.h5')
+        # Keep track of class counts
+        tot += 1
+        if np.argmax(probs) == 1:
+            c += 1
+
+    # Print overall statistics
+
+print(f'Total Healthy Predictions: {c}/{tot}')
+plt.tight_layout()
+plt.show()

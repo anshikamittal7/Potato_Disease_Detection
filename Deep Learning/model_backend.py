@@ -13,7 +13,7 @@ c = 0
 tot = 0
 ensemble_predictions = []
 arr= ["Early_blight", "Late_blight", "Healthy"]
-x= 1
+x= 2
 strx= "Potato___"+arr[x]
 
 for i in range(910, 920):
